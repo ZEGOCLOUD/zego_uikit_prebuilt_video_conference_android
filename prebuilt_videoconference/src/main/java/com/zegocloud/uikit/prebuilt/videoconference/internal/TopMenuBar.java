@@ -133,6 +133,8 @@ public class TopMenuBar extends FrameLayout {
                 break;
             case SWITCH_CAMERA_BUTTON:
                 view = new ZegoSwitchCameraButton(getContext());
+                ((ZegoSwitchCameraButton) view).setImageResource(R.drawable.icon_camera_switch_top,
+                    R.drawable.icon_camera_switch_top);
                 break;
             case LEAVE_BUTTON:
                 view = new ZegoLeaveConferenceButton(getContext());
