@@ -98,16 +98,16 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
             ZegoUIKit.login(userID, userName);
         }
         if (config.leaveConfirmDialogInfo != null) {
-            if (!TextUtils.isEmpty(config.leaveConfirmDialogInfo.title)) {
+            if (TextUtils.isEmpty(config.leaveConfirmDialogInfo.title)) {
                 config.leaveConfirmDialogInfo.title = getString(R.string.leave_title);
             }
-            if (!TextUtils.isEmpty(config.leaveConfirmDialogInfo.message)) {
+            if (TextUtils.isEmpty(config.leaveConfirmDialogInfo.message)) {
                 config.leaveConfirmDialogInfo.message = getString(R.string.leave_message);
             }
-            if (!TextUtils.isEmpty(config.leaveConfirmDialogInfo.cancelButtonName)) {
+            if (TextUtils.isEmpty(config.leaveConfirmDialogInfo.cancelButtonName)) {
                 config.leaveConfirmDialogInfo.cancelButtonName = getString(R.string.leava_cancel);
             }
-            if (!TextUtils.isEmpty(config.leaveConfirmDialogInfo.confirmButtonName)) {
+            if (TextUtils.isEmpty(config.leaveConfirmDialogInfo.confirmButtonName)) {
                 config.leaveConfirmDialogInfo.confirmButtonName = getString(R.string.leave_confirm);
             }
         }
