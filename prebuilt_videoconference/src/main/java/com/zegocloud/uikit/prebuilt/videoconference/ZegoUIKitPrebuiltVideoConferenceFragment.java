@@ -36,14 +36,12 @@ import java.util.List;
 
 public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
 
-    private static final String TAG = "CallFragment";
     private FragmentVideoconferenceBinding binding;
     private VideoConferenceViewModel mViewModel;
     private ZegoViewProvider provider;
     private List<View> bottomMenuBarBtns = new ArrayList<>();
     private List<View> topMenuBarBtns = new ArrayList<>();
     private OnBackPressedCallback onBackPressedCallback;
-    private ZegoOnlySelfInRoomListener onlySelfInRoomListener;
     private LeaveVideoConferenceListener leaveVideoConferenceLisener;
     private ZegoMemberListItemProvider memberListItemProvider;
 
@@ -99,12 +97,19 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
             ZegoUIKit.init(application, appID, appSign, ZegoScenario.GENERAL);
             ZegoUIKit.login(userID, userName);
         }
-        if(config.leaveConfirmDialogInfo == null){
-            config.leaveConfirmDialogInfo = new ZegoLeaveConfirmDialogInfo();
-            config.leaveConfirmDialogInfo.title = getString(R.string.leave_title);
-            config.leaveConfirmDialogInfo.message = getString(R.string.leave_message);
-            config.leaveConfirmDialogInfo.cancelButtonName = getString(R.string.leava_cancel);
-            config.leaveConfirmDialogInfo.confirmButtonName = getString(R.string.leave_confirm);
+        if (config.leaveConfirmDialogInfo != null) {
+            if (!TextUtils.isEmpty(config.leaveConfirmDialogInfo.title)) {
+                config.leaveConfirmDialogInfo.title = getString(R.string.leave_title);
+            }
+            if (!TextUtils.isEmpty(config.leaveConfirmDialogInfo.message)) {
+                config.leaveConfirmDialogInfo.message = getString(R.string.leave_message);
+            }
+            if (!TextUtils.isEmpty(config.leaveConfirmDialogInfo.cancelButtonName)) {
+                config.leaveConfirmDialogInfo.cancelButtonName = getString(R.string.leava_cancel);
+            }
+            if (!TextUtils.isEmpty(config.leaveConfirmDialogInfo.confirmButtonName)) {
+                config.leaveConfirmDialogInfo.confirmButtonName = getString(R.string.leave_confirm);
+            }
         }
         onBackPressedCallback = new OnBackPressedCallback(true) {
             @Override
@@ -181,13 +186,6 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
                     applyAudioVideoViewConfig(config);
                 }
             });
-        //        ZegoUIKit.addOnOnlySelfInRoomListener(() -> {
-        //            if (onlySelfInRoomListener != null) {
-        //                onlySelfInRoomListener.onOnlySelfInRoom();
-        //            } else {
-        //                requireActivity().finish();
-        //            }
-        //        });
         requestPermissionIfNeeded();
     }
 
@@ -278,7 +276,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
             }
         });
         if (TextUtils.isEmpty(config.topMenuBarConfig.title)) {
-            config.topMenuBarConfig.title = "Meeting";
+            config.topMenuBarConfig.title = getString(R.string.top_bar_title);
         }
         binding.topMenuBar.setTitleText(config.topMenuBarConfig.title);
         binding.bottomMenuBar.setMemberListConfig(config.memberListConfig);

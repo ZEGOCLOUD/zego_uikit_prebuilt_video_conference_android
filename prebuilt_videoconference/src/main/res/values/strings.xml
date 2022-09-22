@@ -8,4 +8,5 @@
   <string name="leave_message">Are you sure to leave the conference?</string>
   <string name="leava_cancel">Cancel</string>
   <string name="leave_confirm">Confirm</string>
+  <string name="top_bar_title">Meeting</string>
 </resources>
