@@ -13,21 +13,19 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.permissionx.guolindev.PermissionX;
 import com.zegocloud.uikit.ZegoUIKit;
-import com.zegocloud.uikit.components.audiovideo.ZegoViewProvider;
+import com.zegocloud.uikit.components.audiovideo.ZegoForegroundViewProvider;
 import com.zegocloud.uikit.components.audiovideocontainer.ZegoAudioVideoViewConfig;
-import com.zegocloud.uikit.components.common.ZegoMemberListItemProvider;
+import com.zegocloud.uikit.components.common.ZegoInRoomChatItemViewProvider;
+import com.zegocloud.uikit.components.common.ZegoInRoomNotificationItemViewProvider;
+import com.zegocloud.uikit.components.common.ZegoInRoomNotificationViewConfig;
+import com.zegocloud.uikit.components.common.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoLeaveConfirmDialogInfo;
 import com.zegocloud.uikit.prebuilt.videoconference.databinding.FragmentVideoconferenceBinding;
-import com.zegocloud.uikit.prebuilt.videoconference.internal.VideoConferenceViewModel;
+import com.zegocloud.uikit.prebuilt.videoconference.internal.ConferenceConfigGlobal;
 import com.zegocloud.uikit.prebuilt.videoconference.internal.ZegoVideoForegroundView;
-import com.zegocloud.uikit.prebuilt.videoconference.invite.ZegoVideoConferenceInvitationData;
-import com.zegocloud.uikit.prebuilt.videoconference.invite.internal.InvitationServiceImpl;
-import com.zegocloud.uikit.service.defines.ZegoOnlySelfInRoomListener;
 import com.zegocloud.uikit.service.defines.ZegoScenario;
 import com.zegocloud.uikit.service.defines.ZegoUIKitCallback;
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
@@ -37,25 +35,10 @@ import java.util.List;
 public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
 
     private FragmentVideoconferenceBinding binding;
-    private VideoConferenceViewModel mViewModel;
-    private ZegoViewProvider provider;
     private List<View> bottomMenuBarBtns = new ArrayList<>();
     private List<View> topMenuBarBtns = new ArrayList<>();
     private OnBackPressedCallback onBackPressedCallback;
-    private LeaveVideoConferenceListener leaveVideoConferenceLisener;
-    private ZegoMemberListItemProvider memberListItemProvider;
-
-
-    public static ZegoUIKitPrebuiltVideoConferenceFragment newInstance(ZegoVideoConferenceInvitationData data,
-        ZegoUIKitPrebuiltVideoConferenceConfig config) {
-        ZegoUIKitPrebuiltVideoConferenceFragment fragment = new ZegoUIKitPrebuiltVideoConferenceFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("conferenceID", data.conferenceID);
-        bundle.putString("userID", InvitationServiceImpl.getInstance().userID);
-        bundle.putSerializable("config", config);
-        fragment.setArguments(bundle);
-        return fragment;
-    }
+    private LeaveVideoConferenceListener leaveVideoConferenceListener;
 
     public static ZegoUIKitPrebuiltVideoConferenceFragment newInstance(long appID, @NonNull String appSign,
         @NonNull String userID, @NonNull String userName, @NonNull String conferenceID,
@@ -67,7 +50,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         bundle.putString("conferenceID", conferenceID);
         bundle.putString("userID", userID);
         bundle.putString("userName", userName);
-        bundle.putSerializable("config", config);
+        ConferenceConfigGlobal.getInstance().setConfig(config);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -86,8 +69,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle arguments = getArguments();
-        ZegoUIKitPrebuiltVideoConferenceConfig config = (ZegoUIKitPrebuiltVideoConferenceConfig) arguments.getSerializable(
-            "config");
+        ZegoUIKitPrebuiltVideoConferenceConfig config = ConferenceConfigGlobal.getInstance().getConfig();
         Application application = requireActivity().getApplication();
         long appID = arguments.getLong("appID");
         String appSign = arguments.getString("appSign");
@@ -148,7 +130,6 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(VideoConferenceViewModel.class);
         String conferenceID = getArguments().getString("conferenceID");
         if (!TextUtils.isEmpty(conferenceID)) {
             ZegoUIKit.joinRoom(conferenceID, new ZegoUIKitCallback() {
@@ -170,30 +151,39 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
 
     private void onRoomJoinSucceed() {
         String userID = getArguments().getString("userID");
-        ZegoUIKitPrebuiltVideoConferenceConfig config = (ZegoUIKitPrebuiltVideoConferenceConfig) getArguments().getSerializable(
-            "config");
-        mViewModel.getConfigLiveData().setValue(config);
-        mViewModel.getConfigLiveData()
-            .observe(getViewLifecycleOwner(), new Observer<ZegoUIKitPrebuiltVideoConferenceConfig>() {
-                @Override
-                public void onChanged(ZegoUIKitPrebuiltVideoConferenceConfig config) {
-                    applyMenuBarConfig(config);
+        ZegoUIKitPrebuiltVideoConferenceConfig config = ConferenceConfigGlobal.getInstance().getConfig();
 
-                    ZegoUIKit.turnCameraOn(userID, config.turnOnCameraWhenJoining);
-                    ZegoUIKit.turnMicrophoneOn(userID, config.turnOnMicrophoneWhenJoining);
-                    ZegoUIKit.setAudioOutputToSpeaker(config.useSpeakerWhenJoining);
+        applyMenuBarConfig(config);
 
-                    applyAudioVideoViewConfig(config);
-                }
-            });
+        applyNotificationViewConfig(config);
+
+        ZegoUIKit.turnCameraOn(userID, config.turnOnCameraWhenJoining);
+        ZegoUIKit.turnMicrophoneOn(userID, config.turnOnMicrophoneWhenJoining);
+        ZegoUIKit.setAudioOutputToSpeaker(config.useSpeakerWhenJoining);
+
+        applyAudioVideoViewConfig(config);
+
         requestPermissionIfNeeded();
     }
 
+    private void applyNotificationViewConfig(ZegoUIKitPrebuiltVideoConferenceConfig config) {
+        ZegoInRoomNotificationItemViewProvider inRoomNotificationItemViewProvider = ConferenceConfigGlobal.getInstance()
+            .getInRoomNotificationItemViewProvider();
+        if (inRoomNotificationItemViewProvider != null) {
+            binding.inroomNotificationView.setInRoomNotificationItemViewProvider(inRoomNotificationItemViewProvider);
+        }
+        ZegoInRoomNotificationViewConfig notificationViewConfig = ConferenceConfigGlobal.getInstance()
+            .getConfig().inRoomNotificationViewConfig;
+        binding.inroomNotificationView.setInRoomNotificationViewConfig(notificationViewConfig);
+    }
+
     private void applyAudioVideoViewConfig(ZegoUIKitPrebuiltVideoConferenceConfig config) {
-        if (provider == null) {
-            binding.avcontainer.setForegroundViewProvider(new ZegoViewProvider() {
+        ZegoForegroundViewProvider foregroundProvider = ConferenceConfigGlobal.getInstance()
+            .getVideoViewForegroundViewProvider();
+        if (foregroundProvider == null) {
+            binding.avcontainer.setForegroundViewProvider(new ZegoForegroundViewProvider() {
                 @Override
-                public View getForegroundView(ZegoUIKitUser userInfo) {
+                public View getForegroundView(ViewGroup parent, ZegoUIKitUser userInfo) {
                     ZegoVideoForegroundView foregroundView = new ZegoVideoForegroundView(getContext(), userInfo);
                     foregroundView.showMicrophone(config.audioVideoViewConfig.showMicrophoneStateOnView);
                     foregroundView.showCamera(config.audioVideoViewConfig.showCameraStateOnView);
@@ -202,7 +192,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
                 }
             });
         } else {
-            binding.avcontainer.setForegroundViewProvider(provider);
+            binding.avcontainer.setForegroundViewProvider(foregroundProvider);
         }
 
         binding.avcontainer.setLayout(config.layout);
@@ -214,8 +204,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
 
     private void requestPermissionIfNeeded() {
         String userID = getArguments().getString("userID");
-        ZegoUIKitPrebuiltVideoConferenceConfig config = (ZegoUIKitPrebuiltVideoConferenceConfig) getArguments().getSerializable(
-            "config");
+        ZegoUIKitPrebuiltVideoConferenceConfig config = ConferenceConfigGlobal.getInstance().getConfig();
         boolean permissionGranted =
             PermissionX.isGranted(getContext(), permission.CAMERA) && PermissionX.isGranted(getContext(),
                 permission.RECORD_AUDIO);
@@ -240,33 +229,21 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
     }
 
     private void applyMenuBarConfig(ZegoUIKitPrebuiltVideoConferenceConfig config) {
+        ConferenceConfigGlobal.getInstance().setLeaveVideoConferenceListener(() -> {
+            if (leaveVideoConferenceListener != null) {
+                leaveVideoConferenceListener.onLeaveConference();
+            } else {
+                leaveRoom();
+                requireActivity().finish();
+            }
+        });
         binding.bottomMenuBar.setConfig(config.bottomMenuBarConfig);
         binding.topMenuBar.setConfig(config.topMenuBarConfig);
-        binding.bottomMenuBar.setHangUpConfirmDialogInfo(config.leaveConfirmDialogInfo);
-        binding.topMenuBar.setLeaveConfirmDialogInfo(config.leaveConfirmDialogInfo);
-        binding.bottomMenuBar.setHangUpListener(() -> {
-            InvitationServiceImpl.getInstance().setCallState(InvitationServiceImpl.NONE_HANG_UP);
-            if (leaveVideoConferenceLisener != null) {
-                leaveVideoConferenceLisener.onLeaveConference();
-            } else {
-                ZegoUIKit.leaveRoom();
-                requireActivity().finish();
-            }
-        });
-        binding.topMenuBar.setLeaveVideoConferenceListener(() -> {
-            InvitationServiceImpl.getInstance().setCallState(InvitationServiceImpl.NONE_HANG_UP);
-            if (leaveVideoConferenceLisener != null) {
-                leaveVideoConferenceLisener.onLeaveConference();
-            } else {
-                ZegoUIKit.leaveRoom();
-                requireActivity().finish();
-            }
-        });
         if (bottomMenuBarBtns.size() > 0) {
             binding.bottomMenuBar.addButtons(bottomMenuBarBtns);
         }
         if (topMenuBarBtns.size() > 0) {
-            binding.topMenuBar.addButtons(bottomMenuBarBtns);
+            binding.topMenuBar.addButtons(topMenuBarBtns);
         }
         binding.getRoot().setOnClickListener(new OnClickListener() {
             @Override
@@ -275,16 +252,10 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
                 binding.topMenuBar.setOutSideClicked();
             }
         });
-        if (TextUtils.isEmpty(config.topMenuBarConfig.title)) {
+        if (config.topMenuBarConfig.title == null) {
             config.topMenuBarConfig.title = getString(R.string.top_bar_title);
         }
         binding.topMenuBar.setTitleText(config.topMenuBarConfig.title);
-        binding.bottomMenuBar.setMemberListConfig(config.memberListConfig);
-        binding.topMenuBar.setMemberListConfig(config.memberListConfig);
-        if (memberListItemProvider != null) {
-            binding.bottomMenuBar.setMemberListItemViewProvider(memberListItemProvider);
-            binding.topMenuBar.setMemberListItemViewProvider(memberListItemProvider);
-        }
     }
 
     private void showQuitDialog(String title, String message, String positiveText, String negativeText) {
@@ -312,21 +283,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
     }
 
     private void leaveRoom() {
-        if (InvitationServiceImpl.getInstance().getCallState() > 0) {
-            InvitationServiceImpl.getInstance().setCallState(InvitationServiceImpl.NONE);
-        }
         ZegoUIKit.leaveRoom();
-    }
-
-    public void setForegroundViewProvider(ZegoViewProvider provider) {
-        this.provider = provider;
-        if (binding != null) {
-            binding.avcontainer.setForegroundViewProvider(provider);
-        }
-    }
-
-    public void setLeaveVideoConferenceListener(LeaveVideoConferenceListener listener) {
-        this.leaveVideoConferenceLisener = listener;
     }
 
     public void addButtonToBottomMenuBar(List<View> viewList) {
@@ -343,11 +300,25 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         }
     }
 
-    public void setMemberListItemViewProvider(ZegoMemberListItemProvider memberListItemProvider) {
-        this.memberListItemProvider = memberListItemProvider;
-        if (binding != null) {
-            binding.topMenuBar.setMemberListItemViewProvider(memberListItemProvider);
-        }
+    public void setForegroundViewProvider(ZegoForegroundViewProvider provider) {
+        ConferenceConfigGlobal.getInstance().setVideoViewForegroundViewProvider(provider);
+    }
+
+    public void setLeaveVideoConferenceListener(LeaveVideoConferenceListener listener) {
+        this.leaveVideoConferenceListener = listener;
+    }
+
+
+    public void setMemberListItemViewProvider(ZegoMemberListItemViewProvider memberListItemProvider) {
+        ConferenceConfigGlobal.getInstance().setMemberListItemProvider(memberListItemProvider);
+    }
+
+    public void setInRoomChatItemViewProvider(ZegoInRoomChatItemViewProvider inRoomChatItemViewProvider) {
+        ConferenceConfigGlobal.getInstance().setInRoomChatItemViewProvider(inRoomChatItemViewProvider);
+    }
+
+    public void setInRoomNotificationItemViewProvider(ZegoInRoomNotificationItemViewProvider provider) {
+        ConferenceConfigGlobal.getInstance().setInRoomNotificationItemViewProvider(provider);
     }
 
     public interface LeaveVideoConferenceListener {

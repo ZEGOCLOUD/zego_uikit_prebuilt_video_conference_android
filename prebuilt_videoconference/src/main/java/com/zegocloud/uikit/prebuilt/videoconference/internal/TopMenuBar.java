@@ -16,7 +16,8 @@ import com.zegocloud.uikit.components.audiovideo.ZegoSwitchAudioOutputButton;
 import com.zegocloud.uikit.components.audiovideo.ZegoSwitchCameraButton;
 import com.zegocloud.uikit.components.audiovideo.ZegoToggleCameraButton;
 import com.zegocloud.uikit.components.audiovideo.ZegoToggleMicrophoneButton;
-import com.zegocloud.uikit.components.common.ZegoMemberListItemProvider;
+import com.zegocloud.uikit.components.common.ZegoInRoomChatItemViewProvider;
+import com.zegocloud.uikit.components.common.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.R;
 import com.zegocloud.uikit.prebuilt.videoconference.ZegoUIKitPrebuiltVideoConferenceFragment.LeaveVideoConferenceListener;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoLeaveConfirmDialogInfo;
@@ -30,17 +31,14 @@ import java.util.List;
 
 public class TopMenuBar extends FrameLayout {
 
-    private Runnable runnable;
-    private ZegoLeaveConfirmDialogInfo confirmDialogInfo;
-    private LeaveVideoConferenceListener leaveVideoConferenceListener;
-    private ZegoMemberListItemProvider memberListItemProvider;
     private final int maxViewCount = 3;
     private final List<View> showList = new ArrayList<>();
-    private ZegoConferenceMemberList memberList;
     private LinearLayout contentView;
     private TextView titleView;
     private String title;
-    private ZegoMemberListConfig memberListConfig;
+    private Runnable runnable;
+    private static final long HIDE_DELAY_TIME = 5000;
+    private ZegoTopMenuBarConfig menuBarConfig;
 
     public TopMenuBar(Context context) {
         super(context);
@@ -56,9 +54,6 @@ public class TopMenuBar extends FrameLayout {
         super(context, attrs, defStyleAttr);
         initView();
     }
-
-    private ZegoTopMenuBarConfig menuBarConfig;
-    private static final long HIDE_DELAY_TIME = 5000;
 
     private void initView() {
         int paddingEnd = Utils.dp2px(8f, getResources().getDisplayMetrics());
@@ -97,6 +92,9 @@ public class TopMenuBar extends FrameLayout {
         menuBarConfig = config;
         applyMenuBarStyle(config.style);
         applyMenuBarButtons(config.buttons);
+        if (!menuBarConfig.isVisible) {
+            setVisibility(View.GONE);
+        }
         getHandler().postDelayed(runnable, HIDE_DELAY_TIME);
     }
 
@@ -127,35 +125,56 @@ public class TopMenuBar extends FrameLayout {
         switch (menuBar) {
             case TOGGLE_CAMERA_BUTTON:
                 view = new ZegoToggleCameraButton(getContext());
+                ((ZegoToggleCameraButton) view).setIcon(R.drawable.icon_top_camera_normal,
+                    R.drawable.icon_top_camera_off);
                 break;
             case TOGGLE_MICROPHONE_BUTTON:
                 view = new ZegoToggleMicrophoneButton(getContext());
+                ((ZegoToggleMicrophoneButton) view).setIcon(R.drawable.icon_top_mic_normal,
+                    R.drawable.icon_top_mic_off);
                 break;
             case SWITCH_CAMERA_BUTTON:
                 view = new ZegoSwitchCameraButton(getContext());
-                ((ZegoSwitchCameraButton) view).setImageResource(R.drawable.icon_camera_switch_top,
-                    R.drawable.icon_camera_switch_top);
+                ((ZegoSwitchCameraButton) view).setIcon(R.drawable.icon_top_camera_switch);
                 break;
             case LEAVE_BUTTON:
                 view = new ZegoLeaveConferenceButton(getContext());
-                if (confirmDialogInfo != null) {
-                    ((ZegoLeaveConferenceButton) view).setHangUpConfirmInfo(confirmDialogInfo);
-                }
-                if (leaveVideoConferenceListener != null) {
-                    ((ZegoLeaveConferenceButton) view).setLeaveListener(leaveVideoConferenceListener);
-                }
+                ZegoLeaveConfirmDialogInfo leaveConfirmDialogInfo = ConferenceConfigGlobal.getInstance()
+                    .getConfig().leaveConfirmDialogInfo;
+                ((ZegoLeaveConferenceButton) view).setLeaveConfirmDialogInfo(leaveConfirmDialogInfo);
+                LeaveVideoConferenceListener leaveVideoConferenceListener = ConferenceConfigGlobal.getInstance()
+                    .getLeaveVideoConferenceListener();
+                ((ZegoLeaveConferenceButton) view).setLeaveVideoConferenceListener(leaveVideoConferenceListener);
+                ((ZegoLeaveConferenceButton) view).setIcon(R.drawable.icon_top_leave);
                 break;
             case SWITCH_AUDIO_OUTPUT_BUTTON:
                 view = new ZegoSwitchAudioOutputButton(getContext());
+                ((ZegoSwitchAudioOutputButton) view).setIcon(R.drawable.icon_top_speaker_normal,
+                    R.drawable.icon_top_speaker_close, R.drawable.icon_top_bluetooth);
                 break;
             case SHOW_MEMBER_LIST_BUTTON:
                 view = new ImageView(getContext());
-                ((ImageView) view).setImageResource(R.drawable.icon_member_normal);
+                ((ImageView) view).setImageResource(R.drawable.icon_top_member_normal);
                 view.setOnClickListener(v -> {
-                    memberList = new ZegoConferenceMemberList(getContext());
+                    ZegoConferenceMemberList memberList = new ZegoConferenceMemberList(getContext());
+                    ZegoMemberListItemViewProvider memberListItemProvider = ConferenceConfigGlobal.getInstance()
+                        .getMemberListItemProvider();
                     memberList.setMemberListItemViewProvider(memberListItemProvider);
+                    ZegoMemberListConfig memberListConfig = ConferenceConfigGlobal.getInstance()
+                        .getConfig().memberListConfig;
                     memberList.setMemberListConfig(memberListConfig);
                     memberList.show();
+                });
+                break;
+            case CHAT_BUTTON:
+                view = new ImageView(getContext());
+                ((ImageView) view).setImageResource(R.drawable.icon_top_chat);
+                view.setOnClickListener(v -> {
+                    ZegoInRoomChatDialog inRoomChatDialog = new ZegoInRoomChatDialog(getContext());
+                    ZegoInRoomChatItemViewProvider inRoomChatItemViewProvider = ConferenceConfigGlobal.getInstance()
+                        .getInRoomChatItemViewProvider();
+                    inRoomChatDialog.setInRoomChatItemViewProvider(inRoomChatItemViewProvider);
+                    inRoomChatDialog.show();
                 });
                 break;
         }
@@ -204,27 +223,13 @@ public class TopMenuBar extends FrameLayout {
                 setVisibility(View.GONE);
             }
         } else {
-            setVisibility(View.VISIBLE);
+            if (menuBarConfig.isVisible) {
+                setVisibility(View.VISIBLE);
+            }
             if (menuBarConfig.hideAutomatically) {
                 getHandler().removeCallbacks(runnable);
                 getHandler().postDelayed(runnable, HIDE_DELAY_TIME);
             }
         }
-    }
-
-    public void setLeaveConfirmDialogInfo(ZegoLeaveConfirmDialogInfo leaveConfirmDialogInfo) {
-        this.confirmDialogInfo = leaveConfirmDialogInfo;
-    }
-
-    public void setLeaveVideoConferenceListener(LeaveVideoConferenceListener leaveVideoConferenceListener) {
-        this.leaveVideoConferenceListener = leaveVideoConferenceListener;
-    }
-
-    public void setMemberListItemViewProvider(ZegoMemberListItemProvider memberListItemProvider) {
-        this.memberListItemProvider = memberListItemProvider;
-    }
-
-    public void setMemberListConfig(ZegoMemberListConfig memberListConfig) {
-        this.memberListConfig = memberListConfig;
     }
 }

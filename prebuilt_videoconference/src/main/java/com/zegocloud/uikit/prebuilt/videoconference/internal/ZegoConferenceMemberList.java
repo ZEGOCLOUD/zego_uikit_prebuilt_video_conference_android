@@ -2,21 +2,18 @@ package com.zegocloud.uikit.prebuilt.videoconference.internal;
 
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.zegocloud.uikit.components.common.ZegoMemberListItemProvider;
+import com.zegocloud.uikit.components.common.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.R;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoMemberListConfig;
 import com.zegocloud.uikit.prebuilt.videoconference.databinding.LayoutMemberlistBinding;
@@ -24,7 +21,7 @@ import com.zegocloud.uikit.prebuilt.videoconference.databinding.LayoutMemberlist
 public class ZegoConferenceMemberList extends BottomSheetDialog {
 
     private LayoutMemberlistBinding binding;
-    private ZegoMemberListItemProvider memberListItemProvider;
+    private ZegoMemberListItemViewProvider memberListItemProvider;
     private ZegoMemberListConfig memberListConfig;
 
     public ZegoConferenceMemberList(@NonNull Context context) {
@@ -50,7 +47,7 @@ public class ZegoConferenceMemberList extends BottomSheetDialog {
         WindowManager.LayoutParams lp = window.getAttributes();
         lp.width = LayoutParams.MATCH_PARENT;
         lp.height = LayoutParams.WRAP_CONTENT;
-        lp.dimAmount = 0.1f;
+        lp.dimAmount = 0.5f;
         lp.gravity = Gravity.BOTTOM;
         window.setAttributes(lp);
         setCanceledOnTouchOutside(true);
@@ -59,9 +56,7 @@ public class ZegoConferenceMemberList extends BottomSheetDialog {
         binding.memberlistDown.setOnClickListener(v -> {
             dismiss();
         });
-        if (memberListItemProvider != null) {
-            binding.memberlist.setItemViewProvider(memberListItemProvider);
-        }
+        binding.memberlist.setItemViewProvider(memberListItemProvider);
         if (memberListConfig != null) {
             binding.memberlist.setShowCameraState(memberListConfig.showCameraState);
             binding.memberlist.setShowMicrophoneState(memberListConfig.showMicrophoneState);
@@ -76,18 +71,6 @@ public class ZegoConferenceMemberList extends BottomSheetDialog {
     }
 
     @Override
-    public void show() {
-        super.show();
-        try {
-            // hack bg color of the BottomSheetDialog
-            ViewGroup parent = getDelegate().findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            parent.setBackgroundColor(Color.TRANSPARENT);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE) {
             dismiss();
@@ -96,7 +79,7 @@ public class ZegoConferenceMemberList extends BottomSheetDialog {
         return false;
     }
 
-    public void setMemberListItemViewProvider(ZegoMemberListItemProvider memberListItemProvider) {
+    public void setMemberListItemViewProvider(ZegoMemberListItemViewProvider memberListItemProvider) {
         this.memberListItemProvider = memberListItemProvider;
     }
 

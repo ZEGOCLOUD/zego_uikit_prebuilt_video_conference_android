@@ -7,4 +7,5 @@ public enum ZegoMenuBarButtonName {
     LEAVE_BUTTON,
     SWITCH_CAMERA_BUTTON,
     SHOW_MEMBER_LIST_BUTTON,
+    CHAT_BUTTON,
 }

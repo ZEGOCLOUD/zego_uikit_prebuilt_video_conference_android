@@ -7,13 +7,14 @@ import android.util.AttributeSet;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.zegocloud.uikit.ZegoUIKit;
 import com.zegocloud.uikit.components.audiovideo.ZegoLeaveButton;
-import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoLeaveConfirmDialogInfo;
 import com.zegocloud.uikit.prebuilt.videoconference.ZegoUIKitPrebuiltVideoConferenceFragment.LeaveVideoConferenceListener;
+import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoLeaveConfirmDialogInfo;
 
 public class ZegoLeaveConferenceButton extends ZegoLeaveButton {
 
-    private ZegoLeaveConfirmDialogInfo hangUpConfirmDialogInfo;
+    private ZegoLeaveConfirmDialogInfo leaveConfirmDialogInfo;
     private LeaveVideoConferenceListener leaveVideoConferenceListener;
 
     public ZegoLeaveConferenceButton(@NonNull Context context) {
@@ -24,15 +25,15 @@ public class ZegoLeaveConferenceButton extends ZegoLeaveButton {
         super(context, attrs);
     }
 
-    public void setHangUpConfirmInfo(ZegoLeaveConfirmDialogInfo info) {
-        hangUpConfirmDialogInfo = info;
+    public void setLeaveConfirmDialogInfo(ZegoLeaveConfirmDialogInfo info) {
+        leaveConfirmDialogInfo = info;
     }
 
     @Override
     public void invokedWhenClick() {
         boolean isActivity = getContext() instanceof Activity;
-        if (isActivity && hangUpConfirmDialogInfo != null) {
-            showQuitDialog(hangUpConfirmDialogInfo);
+        if (isActivity && leaveConfirmDialogInfo != null) {
+            showQuitDialog(leaveConfirmDialogInfo);
         } else {
             if (leaveVideoConferenceListener != null) {
                 leaveVideoConferenceListener.onLeaveConference();
@@ -40,7 +41,7 @@ public class ZegoLeaveConferenceButton extends ZegoLeaveButton {
         }
     }
 
-    public void setLeaveListener(LeaveVideoConferenceListener listener) {
+    public void setLeaveVideoConferenceListener(LeaveVideoConferenceListener listener) {
         this.leaveVideoConferenceListener = listener;
     }
 
