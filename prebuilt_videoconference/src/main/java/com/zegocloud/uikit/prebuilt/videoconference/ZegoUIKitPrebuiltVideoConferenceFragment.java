@@ -15,8 +15,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.permissionx.guolindev.PermissionX;
+import com.permissionx.guolindev.callback.RequestCallback;
 import com.zegocloud.uikit.ZegoUIKit;
 import com.zegocloud.uikit.components.audiovideo.ZegoForegroundViewProvider;
+import com.zegocloud.uikit.components.audiovideocontainer.ZegoAudioVideoComparator;
 import com.zegocloud.uikit.components.audiovideocontainer.ZegoAudioVideoViewConfig;
 import com.zegocloud.uikit.components.common.ZegoInRoomChatItemViewProvider;
 import com.zegocloud.uikit.components.common.ZegoInRoomNotificationItemViewProvider;
@@ -30,6 +32,8 @@ import com.zegocloud.uikit.service.defines.ZegoScenario;
 import com.zegocloud.uikit.service.defines.ZegoUIKitCallback;
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
@@ -157,13 +161,22 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
 
         applyNotificationViewConfig(config);
 
-        ZegoUIKit.turnCameraOn(userID, config.turnOnCameraWhenJoining);
-        ZegoUIKit.turnMicrophoneOn(userID, config.turnOnMicrophoneWhenJoining);
         ZegoUIKit.setAudioOutputToSpeaker(config.useSpeakerWhenJoining);
 
         applyAudioVideoViewConfig(config);
 
-        requestPermissionIfNeeded();
+        requestPermissionIfNeeded((allGranted, grantedList, deniedList) -> {
+            if (grantedList.contains(permission.CAMERA)) {
+                if (config.turnOnCameraWhenJoining) {
+                    ZegoUIKit.turnCameraOn(userID, true);
+                }
+            }
+            if (grantedList.contains(permission.RECORD_AUDIO)) {
+                if (config.turnOnMicrophoneWhenJoining) {
+                    ZegoUIKit.turnMicrophoneOn(userID, true);
+                }
+            }
+        });
     }
 
     private void applyNotificationViewConfig(ZegoUIKitPrebuiltVideoConferenceConfig config) {
@@ -183,8 +196,8 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         if (foregroundProvider == null) {
             binding.avcontainer.setForegroundViewProvider(new ZegoForegroundViewProvider() {
                 @Override
-                public View getForegroundView(ViewGroup parent, ZegoUIKitUser userInfo) {
-                    ZegoVideoForegroundView foregroundView = new ZegoVideoForegroundView(getContext(), userInfo);
+                public View getForegroundView(ViewGroup parent, ZegoUIKitUser uiKitUser) {
+                    ZegoVideoForegroundView foregroundView = new ZegoVideoForegroundView(getContext(), uiKitUser);
                     foregroundView.showMicrophone(config.audioVideoViewConfig.showMicrophoneStateOnView);
                     foregroundView.showCamera(config.audioVideoViewConfig.showCameraStateOnView);
                     foregroundView.showUserName(config.audioVideoViewConfig.showUserNameOnView);
@@ -196,36 +209,60 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         }
 
         binding.avcontainer.setLayout(config.layout);
+        binding.avcontainer.setAudioVideoComparator(new ZegoAudioVideoComparator() {
+            @Override
+            public List<ZegoUIKitUser> sortAudioVideo(List<ZegoUIKitUser> userList) {
+                List<ZegoUIKitUser> sortUsers = new ArrayList<>();
+                ZegoUIKitUser self = ZegoUIKit.getLocalUser();
+                userList.remove(self);
+                Collections.reverse(userList);
+                sortUsers.add(self);
+                sortUsers.addAll(userList);
+                return sortUsers;
+            }
+        });
         ZegoAudioVideoViewConfig audioVideoViewConfig = new ZegoAudioVideoViewConfig();
         audioVideoViewConfig.showSoundWavesInAudioMode = config.audioVideoViewConfig.showSoundWavesInAudioMode;
         audioVideoViewConfig.useVideoViewAspectFill = config.audioVideoViewConfig.useVideoViewAspectFill;
         binding.avcontainer.setAudioVideoConfig(audioVideoViewConfig);
     }
 
-    private void requestPermissionIfNeeded() {
-        String userID = getArguments().getString("userID");
-        ZegoUIKitPrebuiltVideoConferenceConfig config = ConferenceConfigGlobal.getInstance().getConfig();
-        boolean permissionGranted =
-            PermissionX.isGranted(getContext(), permission.CAMERA) && PermissionX.isGranted(getContext(),
-                permission.RECORD_AUDIO);
-        if (!permissionGranted) {
-            PermissionX.init(requireActivity()).permissions(permission.CAMERA, permission.RECORD_AUDIO)
-                .onExplainRequestReason((scope, deniedList) -> {
-                    scope.showRequestReasonDialog(deniedList, "We require camera&microphone access to connect a call",
-                        "OK", "Cancel");
-                }).request((allGranted, grantedList, deniedList) -> {
-                    if (allGranted) {
-                        if (config.turnOnCameraWhenJoining) {
-                            ZegoUIKit.turnCameraOn(userID, false);
-                            ZegoUIKit.turnCameraOn(userID, true);
-                        }
-                        if (config.turnOnMicrophoneWhenJoining) {
-                            ZegoUIKit.turnMicrophoneOn(userID, false);
-                            ZegoUIKit.turnMicrophoneOn(userID, true);
-                        }
-                    }
-                });
-        }
+    private void requestPermissionIfNeeded(RequestCallback requestCallback) {
+        List<String> permissions = Arrays.asList(permission.CAMERA, permission.RECORD_AUDIO);
+        PermissionX.init(requireActivity()).permissions(permissions).onExplainRequestReason((scope, deniedList) -> {
+            String message = "";
+            if (deniedList.size() == 1) {
+                if (deniedList.contains(permission.CAMERA)) {
+                    message = getContext().getString(R.string.permission_explain_camera);
+                } else if (deniedList.contains(permission.RECORD_AUDIO)) {
+                    message = getContext().getString(R.string.permission_explain_mic);
+                }
+            } else {
+                message = getContext().getString(R.string.permission_explain_camera_mic);
+            }
+            scope.showRequestReasonDialog(deniedList, message, getString(R.string.ok));
+        }).onForwardToSettings((scope, deniedList) -> {
+            String message = "";
+            if (deniedList.size() == 1) {
+                if (deniedList.contains(permission.CAMERA)) {
+                    message = getContext().getString(R.string.settings_camera);
+                } else if (deniedList.contains(permission.RECORD_AUDIO)) {
+                    message = getContext().getString(R.string.settings_mic);
+                }
+            } else {
+                message = getContext().getString(R.string.settings_camera_mic);
+            }
+            scope.showForwardToSettingsDialog(deniedList, message, getString(R.string.settings),
+                getString(R.string.cancel));
+        }).request(new RequestCallback() {
+            @Override
+            public void onResult(boolean allGranted, @NonNull List<String> grantedList,
+                @NonNull List<String> deniedList) {
+                if (requestCallback != null) {
+                    requestCallback.onResult(allGranted, grantedList, deniedList);
+                }
+            }
+        });
     }
 
     private void applyMenuBarConfig(ZegoUIKitPrebuiltVideoConferenceConfig config) {

@@ -53,7 +53,7 @@
       app:layout_constraintBottom_toBottomOf="@id/dialog_call_icon"
       app:layout_constraintStart_toEndOf="@id/dialog_call_icon" />
 
-    <com.zegocloud.uikit.components.invite.ZegoAcceptInvitationButton
+    <com.zegocloud.uikit.plugin.invitation.components.ZegoAcceptInvitationButton
       android:id="@+id/dialog_call_accept"
       android:layout_width="37dp"
       android:layout_height="37dp"
@@ -63,7 +63,7 @@
       app:layout_constraintTop_toTopOf="parent" />
 
 
-    <com.zegocloud.uikit.components.invite.ZegoRefuseInvitationButton
+    <com.zegocloud.uikit.plugin.invitation.components.ZegoRefuseInvitationButton
       android:id="@+id/dialog_call_decline"
       android:layout_width="37dp"
       android:layout_height="37dp"

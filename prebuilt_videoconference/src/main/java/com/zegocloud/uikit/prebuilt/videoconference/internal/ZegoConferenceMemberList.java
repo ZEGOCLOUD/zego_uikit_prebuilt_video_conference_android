@@ -13,10 +13,17 @@ import android.view.WindowManager.LayoutParams;
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.zegocloud.uikit.ZegoUIKit;
+import com.zegocloud.uikit.components.common.ZegoMemberListComparator;
 import com.zegocloud.uikit.components.common.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.R;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoMemberListConfig;
 import com.zegocloud.uikit.prebuilt.videoconference.databinding.LayoutMemberlistBinding;
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
+import com.zegocloud.uikit.service.internal.UIKitCore;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ZegoConferenceMemberList extends BottomSheetDialog {
 
@@ -61,6 +68,18 @@ public class ZegoConferenceMemberList extends BottomSheetDialog {
             binding.memberlist.setShowCameraState(memberListConfig.showCameraState);
             binding.memberlist.setShowMicrophoneState(memberListConfig.showMicrophoneState);
         }
+        binding.memberlist.setMemberListComparator(new ZegoMemberListComparator() {
+            @Override
+            public List<ZegoUIKitUser> sortUserList(List<ZegoUIKitUser> userList) {
+                List<ZegoUIKitUser> sortUsers = new ArrayList<>();
+                ZegoUIKitUser self = ZegoUIKit.getLocalUser();
+                userList.remove(self);
+                Collections.reverse(userList);
+                sortUsers.add(self);
+                sortUsers.addAll(userList);
+                return sortUsers;
+            }
+        });
 
         // both need setPeekHeight & setLayoutParams
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();

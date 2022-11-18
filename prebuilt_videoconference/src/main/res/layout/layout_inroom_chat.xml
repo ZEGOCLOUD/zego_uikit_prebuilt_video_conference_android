@@ -41,7 +41,7 @@
       app:layout_constraintStart_toEndOf="@id/inroom_chat_down"
       app:layout_constraintTop_toTopOf="parent" />
 
-    <com.zegocloud.uikit.components.live.ZegoInRoomMessageInput
+    <com.zegocloud.uikit.components.message.ZegoInRoomMessageInput
       android:id="@+id/inroom_chat_input"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"

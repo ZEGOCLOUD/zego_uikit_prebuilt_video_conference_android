@@ -59,7 +59,7 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@id/call_user_name" />
 
-  <com.zegocloud.uikit.components.invite.ZegoCancelInvitationButton
+  <com.zegocloud.uikit.plugin.invitation.components.ZegoCancelInvitationButton
     android:id="@+id/call_waiting_cancel"
     android:layout_width="60dp"
     android:layout_height="60dp"
