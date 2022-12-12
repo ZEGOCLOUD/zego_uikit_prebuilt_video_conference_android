@@ -54,7 +54,7 @@
       android:background="#26ffffff"
       app:layout_constraintBottom_toTopOf="@id/inroom_chat_input" />
 
-    <com.zegocloud.uikit.components.common.ZegoInRoomChatView
+    <com.zegocloud.uikit.components.chat.ZegoInRoomChatView
       android:id="@+id/inroom_chat_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"

@@ -22,7 +22,7 @@
     android:layout_height="104dp"
     app:layout_constraintBottom_toBottomOf="parent" />
 
-  <com.zegocloud.uikit.components.common.ZegoInRoomNotificationView
+  <com.zegocloud.uikit.components.notice.ZegoInRoomNotificationView
     android:id="@+id/inroom_notification_view"
     android:layout_width="210dp"
     android:layout_height="wrap_content"

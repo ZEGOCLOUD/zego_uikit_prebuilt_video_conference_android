@@ -14,7 +14,7 @@ import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
-import com.zegocloud.uikit.components.common.ZegoInRoomChatItemViewProvider;
+import com.zegocloud.uikit.components.chat.ZegoInRoomChatItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.R;
 import com.zegocloud.uikit.prebuilt.videoconference.databinding.LayoutInroomChatBinding;
 
