@@ -125,17 +125,17 @@ public class TopMenuBar extends FrameLayout {
         switch (menuBar) {
             case TOGGLE_CAMERA_BUTTON:
                 view = new ZegoToggleCameraButton(getContext());
-                ((ZegoToggleCameraButton) view).setIcon(R.drawable.icon_top_camera_normal,
-                    R.drawable.icon_top_camera_off);
+                ((ZegoToggleCameraButton) view).setIcon(R.drawable.videoconference_icon_top_camera_normal,
+                    R.drawable.videoconference_icon_top_camera_off);
                 break;
             case TOGGLE_MICROPHONE_BUTTON:
                 view = new ZegoToggleMicrophoneButton(getContext());
-                ((ZegoToggleMicrophoneButton) view).setIcon(R.drawable.icon_top_mic_normal,
-                    R.drawable.icon_top_mic_off);
+                ((ZegoToggleMicrophoneButton) view).setIcon(R.drawable.videoconference_icon_top_mic_normal,
+                    R.drawable.videoconference_icon_top_mic_off);
                 break;
             case SWITCH_CAMERA_BUTTON:
                 view = new ZegoSwitchCameraButton(getContext());
-                ((ZegoSwitchCameraButton) view).setIcon(R.drawable.icon_top_camera_switch);
+                ((ZegoSwitchCameraButton) view).setIcon(R.drawable.videoconference_icon_top_camera_switch);
                 break;
             case LEAVE_BUTTON:
                 view = new ZegoLeaveConferenceButton(getContext());
@@ -145,16 +145,16 @@ public class TopMenuBar extends FrameLayout {
                 LeaveVideoConferenceListener leaveVideoConferenceListener = ConferenceConfigGlobal.getInstance()
                     .getLeaveVideoConferenceListener();
                 ((ZegoLeaveConferenceButton) view).setLeaveVideoConferenceListener(leaveVideoConferenceListener);
-                ((ZegoLeaveConferenceButton) view).setIcon(R.drawable.icon_top_leave);
+                ((ZegoLeaveConferenceButton) view).setIcon(R.drawable.videoconference_icon_top_leave);
                 break;
             case SWITCH_AUDIO_OUTPUT_BUTTON:
                 view = new ZegoSwitchAudioOutputButton(getContext());
-                ((ZegoSwitchAudioOutputButton) view).setIcon(R.drawable.icon_top_speaker_normal,
-                    R.drawable.icon_top_speaker_close, R.drawable.icon_top_bluetooth);
+                ((ZegoSwitchAudioOutputButton) view).setIcon(R.drawable.videoconference_icon_top_speaker_normal,
+                    R.drawable.videoconference_icon_top_speaker_close, R.drawable.videoconference_icon_top_bluetooth);
                 break;
             case SHOW_MEMBER_LIST_BUTTON:
                 view = new ImageView(getContext());
-                ((ImageView) view).setImageResource(R.drawable.icon_top_member_normal);
+                ((ImageView) view).setImageResource(R.drawable.videoconference_icon_top_member_normal);
                 view.setOnClickListener(v -> {
                     ZegoConferenceMemberList memberList = new ZegoConferenceMemberList(getContext());
                     ZegoMemberListItemViewProvider memberListItemProvider = ConferenceConfigGlobal.getInstance()
@@ -168,7 +168,7 @@ public class TopMenuBar extends FrameLayout {
                 break;
             case CHAT_BUTTON:
                 view = new ImageView(getContext());
-                ((ImageView) view).setImageResource(R.drawable.icon_top_chat);
+                ((ImageView) view).setImageResource(R.drawable.videoconference_icon_top_chat);
                 view.setOnClickListener(v -> {
                     ZegoInRoomChatDialog inRoomChatDialog = new ZegoInRoomChatDialog(getContext());
                     ZegoInRoomChatItemViewProvider inRoomChatItemViewProvider = ConferenceConfigGlobal.getInstance()

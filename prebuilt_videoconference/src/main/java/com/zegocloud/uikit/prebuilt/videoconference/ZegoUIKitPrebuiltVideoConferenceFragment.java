@@ -3,6 +3,7 @@ package com.zegocloud.uikit.prebuilt.videoconference;
 import android.Manifest.permission;
 import android.app.Application;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.permissionx.guolindev.PermissionX;
@@ -21,11 +23,11 @@ import com.zegocloud.uikit.components.audiovideo.ZegoForegroundViewProvider;
 import com.zegocloud.uikit.components.audiovideocontainer.ZegoAudioVideoComparator;
 import com.zegocloud.uikit.components.audiovideocontainer.ZegoAudioVideoViewConfig;
 import com.zegocloud.uikit.components.chat.ZegoInRoomChatItemViewProvider;
+import com.zegocloud.uikit.components.memberlist.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.components.notice.ZegoInRoomNotificationItemViewProvider;
 import com.zegocloud.uikit.components.notice.ZegoInRoomNotificationViewConfig;
-import com.zegocloud.uikit.components.memberlist.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoLeaveConfirmDialogInfo;
-import com.zegocloud.uikit.prebuilt.videoconference.databinding.FragmentVideoconferenceBinding;
+import com.zegocloud.uikit.prebuilt.videoconference.databinding.VideoconferenceFragmentVideoconferenceBinding;
 import com.zegocloud.uikit.prebuilt.videoconference.internal.ConferenceConfigGlobal;
 import com.zegocloud.uikit.prebuilt.videoconference.internal.ZegoVideoForegroundView;
 import com.zegocloud.uikit.service.defines.ZegoScenario;
@@ -38,7 +40,7 @@ import java.util.List;
 
 public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
 
-    private FragmentVideoconferenceBinding binding;
+    private VideoconferenceFragmentVideoconferenceBinding binding;
     private List<View> bottomMenuBarBtns = new ArrayList<>();
     private List<View> topMenuBarBtns = new ArrayList<>();
     private OnBackPressedCallback onBackPressedCallback;
@@ -85,16 +87,16 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         }
         if (config.leaveConfirmDialogInfo != null) {
             if (TextUtils.isEmpty(config.leaveConfirmDialogInfo.title)) {
-                config.leaveConfirmDialogInfo.title = getString(R.string.leave_title);
+                config.leaveConfirmDialogInfo.title = getString(R.string.videoconference_leave_title);
             }
             if (TextUtils.isEmpty(config.leaveConfirmDialogInfo.message)) {
-                config.leaveConfirmDialogInfo.message = getString(R.string.leave_message);
+                config.leaveConfirmDialogInfo.message = getString(R.string.videoconference_leave_message);
             }
             if (TextUtils.isEmpty(config.leaveConfirmDialogInfo.cancelButtonName)) {
-                config.leaveConfirmDialogInfo.cancelButtonName = getString(R.string.leava_cancel);
+                config.leaveConfirmDialogInfo.cancelButtonName = getString(R.string.videoconference_leava_cancel);
             }
             if (TextUtils.isEmpty(config.leaveConfirmDialogInfo.confirmButtonName)) {
-                config.leaveConfirmDialogInfo.confirmButtonName = getString(R.string.leave_confirm);
+                config.leaveConfirmDialogInfo.confirmButtonName = getString(R.string.videoconference_leave_confirm);
             }
         }
         onBackPressedCallback = new OnBackPressedCallback(true) {
@@ -126,7 +128,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
         @Nullable Bundle savedInstanceState) {
-        binding = FragmentVideoconferenceBinding.inflate(inflater, container, false);
+        binding = VideoconferenceFragmentVideoconferenceBinding.inflate(inflater, container, false);
         return binding.getRoot();
 
     }
@@ -229,31 +231,43 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
 
     private void requestPermissionIfNeeded(RequestCallback requestCallback) {
         List<String> permissions = Arrays.asList(permission.CAMERA, permission.RECORD_AUDIO);
+
+        boolean allGranted = true;
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(getContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+                allGranted = false;
+            }
+        }
+        if (allGranted) {
+            requestCallback.onResult(true, permissions, new ArrayList<>());
+            return;
+        }
+
         PermissionX.init(requireActivity()).permissions(permissions).onExplainRequestReason((scope, deniedList) -> {
             String message = "";
             if (deniedList.size() == 1) {
                 if (deniedList.contains(permission.CAMERA)) {
-                    message = getContext().getString(R.string.permission_explain_camera);
+                    message = getContext().getString(R.string.videoconference_permission_explain_camera);
                 } else if (deniedList.contains(permission.RECORD_AUDIO)) {
-                    message = getContext().getString(R.string.permission_explain_mic);
+                    message = getContext().getString(R.string.videoconference_permission_explain_mic);
                 }
             } else {
-                message = getContext().getString(R.string.permission_explain_camera_mic);
+                message = getContext().getString(R.string.videoconference_permission_explain_camera_mic);
             }
-            scope.showRequestReasonDialog(deniedList, message, getString(R.string.ok));
+            scope.showRequestReasonDialog(deniedList, message, getString(R.string.videoconference_ok));
         }).onForwardToSettings((scope, deniedList) -> {
             String message = "";
             if (deniedList.size() == 1) {
                 if (deniedList.contains(permission.CAMERA)) {
-                    message = getContext().getString(R.string.settings_camera);
+                    message = getContext().getString(R.string.videoconference_settings_camera);
                 } else if (deniedList.contains(permission.RECORD_AUDIO)) {
-                    message = getContext().getString(R.string.settings_mic);
+                    message = getContext().getString(R.string.videoconference_settings_mic);
                 }
             } else {
-                message = getContext().getString(R.string.settings_camera_mic);
+                message = getContext().getString(R.string.videoconference_settings_camera_mic);
             }
-            scope.showForwardToSettingsDialog(deniedList, message, getString(R.string.settings),
-                getString(R.string.cancel));
+            scope.showForwardToSettingsDialog(deniedList, message, getString(R.string.videoconference_settings),
+                getString(R.string.videoconference_cancel));
         }).request(new RequestCallback() {
             @Override
             public void onResult(boolean allGranted, @NonNull List<String> grantedList,
@@ -290,7 +304,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
             }
         });
         if (config.topMenuBarConfig.title == null) {
-            config.topMenuBarConfig.title = getString(R.string.top_bar_title);
+            config.topMenuBarConfig.title = getString(R.string.videoconference_top_bar_title);
         }
         binding.topMenuBar.setTitleText(config.topMenuBarConfig.title);
     }

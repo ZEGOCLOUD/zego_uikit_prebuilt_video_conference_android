@@ -1,24 +1,24 @@
 <resources>
 
-  <string name="zego_voice_call">ZEGO Voice Call</string>
-  <string name="zego_video_call">ZEGO Video Call</string>
-  <string name="calling">calling</string>
-  <string name="memberlist_title">Member</string>
-  <string name="inroom_chat">Chat</string>
-  <string name="leave_title">Leave the conference</string>
-  <string name="leave_message">Are you sure to leave the conference?</string>
-  <string name="leava_cancel">Cancel</string>
-  <string name="leave_confirm">Confirm</string>
-  <string name="top_bar_title">Conference</string>
-  <string name="chat_hint">Send a message to everyone</string>
+  <string name="videoconference_zego_voice_call">ZEGO Voice Call</string>
+  <string name="videoconference_zego_video_call">ZEGO Video Call</string>
+  <string name="videoconference_calling">calling</string>
+  <string name="videoconference_memberlist_title">Member</string>
+  <string name="videoconference_inroom_chat">Chat</string>
+  <string name="videoconference_leave_title">Leave the conference</string>
+  <string name="videoconference_leave_message">Are you sure to leave the conference?</string>
+  <string name="videoconference_leava_cancel">Cancel</string>
+  <string name="videoconference_leave_confirm">Confirm</string>
+  <string name="videoconference_top_bar_title">Conference</string>
+  <string name="videoconference_chat_hint">Send a message to everyone</string>
 
-  <string name="permission_explain_camera">Camera access is required to start a video conference.</string>
-  <string name="permission_explain_mic">Microphone access is required to start a video conference.</string>
-  <string name="permission_explain_camera_mic">Camera and microphone access are required to start a video conference.</string>
-  <string name="settings_camera">Please go to system settings to allow camera access. </string>
-  <string name="settings_mic">Please go to system settings to allow microphone access. </string>
-  <string name="settings_camera_mic">Please go to system settings to allow camera and microphone access.</string>
-  <string name="ok">OK</string>
-  <string name="cancel">Cancel</string>
-  <string name="settings">Settings</string>
+  <string name="videoconference_permission_explain_camera">Camera access is required to start a video conference.</string>
+  <string name="videoconference_permission_explain_mic">Microphone access is required to start a video conference.</string>
+  <string name="videoconference_permission_explain_camera_mic">Camera and microphone access are required to start a video conference.</string>
+  <string name="videoconference_settings_camera">Please go to system settings to allow camera access. </string>
+  <string name="videoconference_settings_mic">Please go to system settings to allow microphone access. </string>
+  <string name="videoconference_settings_camera_mic">Please go to system settings to allow camera and microphone access.</string>
+  <string name="videoconference_ok">OK</string>
+  <string name="videoconference_cancel">Cancel</string>
+  <string name="videoconference_settings">Settings</string>
 </resources>

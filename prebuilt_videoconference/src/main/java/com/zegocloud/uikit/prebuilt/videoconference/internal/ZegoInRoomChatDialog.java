@@ -16,11 +16,11 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import com.zegocloud.uikit.components.chat.ZegoInRoomChatItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.R;
-import com.zegocloud.uikit.prebuilt.videoconference.databinding.LayoutInroomChatBinding;
+import com.zegocloud.uikit.prebuilt.videoconference.databinding.VideoconferenceLayoutInroomChatBinding;
 
 public class ZegoInRoomChatDialog extends Dialog {
 
-    private LayoutInroomChatBinding binding;
+    private VideoconferenceLayoutInroomChatBinding binding;
     private ZegoInRoomChatItemViewProvider inRoomChatItemViewProvider;
     private boolean isKeyboardVisible = false;
     private boolean dismissWhenBackPressed = false;
@@ -42,7 +42,7 @@ public class ZegoInRoomChatDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = LayoutInroomChatBinding.inflate(getLayoutInflater());
+        binding = VideoconferenceLayoutInroomChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         Window window = getWindow();
@@ -61,7 +61,7 @@ public class ZegoInRoomChatDialog extends Dialog {
         binding.inroomChatDown.setOnClickListener(v -> {
             dismiss();
         });
-        binding.inroomChatInput.setPlaceHolder(getContext().getString(R.string.chat_hint));
+        binding.inroomChatInput.setPlaceHolder(getContext().getString(R.string.videoconference_chat_hint));
 
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         int height = (int) (displayMetrics.heightPixels * 0.85f);

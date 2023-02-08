@@ -127,20 +127,21 @@ public class BottomMenuBar extends LinearLayout {
                 break;
             case SHOW_MEMBER_LIST_BUTTON:
                 view = new ImageView(getContext());
-                ((ImageView) view).setImageResource(R.drawable.icon_top_member_normal);
+                ((ImageView) view).setImageResource(R.drawable.videoconference_icon_top_member_normal);
                 view.setOnClickListener(v -> {
                     ZegoConferenceMemberList memberList = new ZegoConferenceMemberList(getContext());
                     ZegoMemberListItemViewProvider memberListItemProvider = ConferenceConfigGlobal.getInstance()
                         .getMemberListItemProvider();
                     memberList.setMemberListItemViewProvider(memberListItemProvider);
-                    ZegoMemberListConfig memberListConfig = ConferenceConfigGlobal.getInstance().getConfig().memberListConfig;
+                    ZegoMemberListConfig memberListConfig = ConferenceConfigGlobal.getInstance()
+                        .getConfig().memberListConfig;
                     memberList.setMemberListConfig(memberListConfig);
                     memberList.show();
                 });
                 break;
             case CHAT_BUTTON:
                 view = new ImageView(getContext());
-                ((ImageView) view).setImageResource(R.drawable.icon_chat_normal);
+                ((ImageView) view).setImageResource(R.drawable.videoconference_icon_chat_normal);
                 view.setOnClickListener(v -> {
                     ZegoInRoomChatDialog inRoomChatDialog = new ZegoInRoomChatDialog(getContext());
                     ZegoInRoomChatItemViewProvider inRoomChatItemViewProvider = ConferenceConfigGlobal.getInstance()
@@ -228,14 +229,16 @@ public class BottomMenuBar extends LinearLayout {
         this.menuBarConfig = bottomMenuBarConfig;
         applyMenuBarStyle(bottomMenuBarConfig.style);
         applyMenuBarButtons(bottomMenuBarConfig.buttons);
-        getHandler().postDelayed(runnable, HIDE_DELAY_TIME);
+        if (bottomMenuBarConfig.hideAutomatically) {
+            getHandler().postDelayed(runnable, HIDE_DELAY_TIME);
+        }
     }
 
     private void applyMenuBarStyle(ZegoMenuBarStyle style) {
         if (style == ZegoMenuBarStyle.LIGHT) {
             setBackground(null);
         } else {
-            setBackgroundResource(R.drawable.background_bottom_menubar);
+            setBackgroundResource(R.drawable.videoconference_background_bottom_menubar);
         }
     }
 
@@ -268,8 +271,8 @@ public class BottomMenuBar extends LinearLayout {
         private void initView() {
             StateListDrawable sld = new StateListDrawable();
             sld.addState(new int[]{android.R.attr.state_pressed},
-                ContextCompat.getDrawable(getContext(), R.drawable.icon_more_off));
-            sld.addState(new int[]{}, ContextCompat.getDrawable(getContext(), R.drawable.icon_more));
+                ContextCompat.getDrawable(getContext(), R.drawable.videoconference_icon_more_off));
+            sld.addState(new int[]{}, ContextCompat.getDrawable(getContext(), R.drawable.videoconference_icon_more));
             setImageDrawable(sld);
             setOnClickListener(v -> showMoreDialog());
         }

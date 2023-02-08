@@ -18,7 +18,7 @@ import com.zegocloud.uikit.components.memberlist.ZegoMemberListComparator;
 import com.zegocloud.uikit.components.memberlist.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.R;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoMemberListConfig;
-import com.zegocloud.uikit.prebuilt.videoconference.databinding.LayoutMemberlistBinding;
+import com.zegocloud.uikit.prebuilt.videoconference.databinding.VideoconferenceLayoutMemberlistBinding;
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ZegoConferenceMemberList extends BottomSheetDialog {
 
-    private LayoutMemberlistBinding binding;
+    private VideoconferenceLayoutMemberlistBinding binding;
     private ZegoMemberListItemViewProvider memberListItemProvider;
     private ZegoMemberListConfig memberListConfig;
 
@@ -46,7 +46,7 @@ public class ZegoConferenceMemberList extends BottomSheetDialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = LayoutMemberlistBinding.inflate(getLayoutInflater());
+        binding = VideoconferenceLayoutMemberlistBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         Window window = getWindow();
