@@ -9,6 +9,8 @@
 
 ## Integrate the SDK
 
+[![Tutorial | How to build video conference using Android in 10 mins with ZEGOCLOUD](https://res.cloudinary.com/marcomontalbano/image/upload/v1682409701/video_to_markdown/images/youtube--HqzoiKZF_lM-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://youtu.be/HqzoiKZF_lM "Tutorial | How to build video conference using Android in 10 mins with ZEGOCLOUD")
+
 ### Add ZegoUIKitPrebuiltVideoConference as dependencies
 
 1. Add the `jitpack` configuration.
