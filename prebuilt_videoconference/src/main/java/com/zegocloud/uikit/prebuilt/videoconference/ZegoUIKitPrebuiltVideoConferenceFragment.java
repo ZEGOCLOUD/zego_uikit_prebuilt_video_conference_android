@@ -19,9 +19,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
 import com.zegocloud.uikit.ZegoUIKit;
+import com.zegocloud.uikit.components.audiovideo.ZegoBaseAudioVideoForegroundView;
 import com.zegocloud.uikit.components.audiovideo.ZegoForegroundViewProvider;
 import com.zegocloud.uikit.components.audiovideocontainer.ZegoAudioVideoComparator;
 import com.zegocloud.uikit.components.audiovideocontainer.ZegoAudioVideoViewConfig;
+import com.zegocloud.uikit.components.audiovideocontainer.ZegoLayoutGalleryConfig;
 import com.zegocloud.uikit.components.chat.ZegoInRoomChatItemViewProvider;
 import com.zegocloud.uikit.components.memberlist.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.components.notice.ZegoInRoomNotificationItemViewProvider;
@@ -30,10 +32,12 @@ import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoLeaveConfirmDialo
 import com.zegocloud.uikit.prebuilt.videoconference.databinding.VideoconferenceFragmentVideoconferenceBinding;
 import com.zegocloud.uikit.prebuilt.videoconference.internal.ConferenceConfigGlobal;
 import com.zegocloud.uikit.prebuilt.videoconference.internal.ZegoAudioVideoForegroundView;
-import com.zegocloud.uikit.components.audiovideo.ZegoBaseAudioVideoForegroundView;
+import com.zegocloud.uikit.prebuilt.videoconference.internal.ZegoScreenShareForegroundView;
 import com.zegocloud.uikit.service.defines.ZegoScenario;
 import com.zegocloud.uikit.service.defines.ZegoUIKitCallback;
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
+import im.zego.zegoexpress.constants.ZegoVideoConfigPreset;
+import im.zego.zegoexpress.entity.ZegoVideoConfig;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -200,7 +204,8 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
             binding.avcontainer.setAudioVideoForegroundViewProvider(new ZegoForegroundViewProvider() {
                 @Override
                 public ZegoBaseAudioVideoForegroundView getForegroundView(ViewGroup parent, ZegoUIKitUser uiKitUser) {
-                    ZegoAudioVideoForegroundView foregroundView = new ZegoAudioVideoForegroundView(getContext(), uiKitUser.userID);
+                    ZegoAudioVideoForegroundView foregroundView = new ZegoAudioVideoForegroundView(getContext(),
+                        uiKitUser.userID);
                     foregroundView.showMicrophoneView(config.audioVideoViewConfig.showMicrophoneStateOnView);
                     foregroundView.showCameraView(config.audioVideoViewConfig.showCameraStateOnView);
                     foregroundView.showUserNameView(config.audioVideoViewConfig.showUserNameOnView);
@@ -224,10 +229,30 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
                 return sortUsers;
             }
         });
+
+        binding.avcontainer.setScreenShareForegroundViewProvider((parent, uiKitUser) -> {
+            ZegoScreenShareForegroundView foregroundView = new ZegoScreenShareForegroundView(parent,
+                uiKitUser.userID);
+            foregroundView.setParentContainer(binding.avcontainer);
+
+            if (config.layout.config instanceof ZegoLayoutGalleryConfig) {
+                ZegoLayoutGalleryConfig galleryConfig = (ZegoLayoutGalleryConfig) config.layout.config;
+                foregroundView.setToggleButtonRules(galleryConfig.showScreenSharingFullscreenModeToggleButtonRules);
+            }
+
+            return foregroundView;
+        });
+
         ZegoAudioVideoViewConfig audioVideoViewConfig = new ZegoAudioVideoViewConfig();
         audioVideoViewConfig.showSoundWavesInAudioMode = config.audioVideoViewConfig.showSoundWavesInAudioMode;
         audioVideoViewConfig.useVideoViewAspectFill = config.audioVideoViewConfig.useVideoViewAspectFill;
         binding.avcontainer.setAudioVideoConfig(audioVideoViewConfig);
+
+        if (config.videoConfig != null) {
+            ZegoVideoConfigPreset zegoVideoConfigPreset = ZegoVideoConfigPreset.getZegoVideoConfigPreset(
+                config.videoConfig.resolution.value());
+            ZegoUIKit.setVideoConfig(new ZegoVideoConfig(zegoVideoConfigPreset));
+        }
     }
 
     private void requestPermissionIfNeeded(RequestCallback requestCallback) {
@@ -291,6 +316,10 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         });
         binding.bottomMenuBar.setConfig(config.bottomMenuBarConfig);
         binding.topMenuBar.setConfig(config.topMenuBarConfig);
+
+        binding.topMenuBar.setScreenShareVideoConfig(config.screenSharingVideoConfig);
+        binding.bottomMenuBar.setScreenShareVideoConfig(config.screenSharingVideoConfig);
+
         if (bottomMenuBarBtns.size() > 0) {
             binding.bottomMenuBar.addButtons(bottomMenuBarBtns);
         }

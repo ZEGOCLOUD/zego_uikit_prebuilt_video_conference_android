@@ -8,4 +8,5 @@ public enum ZegoMenuBarButtonName {
     SWITCH_CAMERA_BUTTON,
     SHOW_MEMBER_LIST_BUTTON,
     CHAT_BUTTON,
+    SCREEN_SHARING_TOGGLE_BUTTON
 }

@@ -17,6 +17,7 @@ import com.zegocloud.uikit.components.audiovideo.ZegoSwitchCameraButton;
 import com.zegocloud.uikit.components.audiovideo.ZegoToggleCameraButton;
 import com.zegocloud.uikit.components.audiovideo.ZegoToggleMicrophoneButton;
 import com.zegocloud.uikit.components.chat.ZegoInRoomChatItemViewProvider;
+import com.zegocloud.uikit.components.common.ZegoScreenSharingToggleButton;
 import com.zegocloud.uikit.components.memberlist.ZegoMemberListItemViewProvider;
 import com.zegocloud.uikit.prebuilt.videoconference.R;
 import com.zegocloud.uikit.prebuilt.videoconference.ZegoUIKitPrebuiltVideoConferenceFragment.LeaveVideoConferenceListener;
@@ -24,6 +25,7 @@ import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoLeaveConfirmDialo
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoMemberListConfig;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoMenuBarButtonName;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoMenuBarStyle;
+import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoPrebuiltVideoConfig;
 import com.zegocloud.uikit.prebuilt.videoconference.config.ZegoTopMenuBarConfig;
 import com.zegocloud.uikit.utils.Utils;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ public class TopMenuBar extends FrameLayout {
     private Runnable runnable;
     private static final long HIDE_DELAY_TIME = 5000;
     private ZegoTopMenuBarConfig menuBarConfig;
+    private ZegoPrebuiltVideoConfig screenSharingVideoConfig;
 
     public TopMenuBar(Context context) {
         super(context);
@@ -177,6 +180,14 @@ public class TopMenuBar extends FrameLayout {
                     inRoomChatDialog.show();
                 });
                 break;
+            case SCREEN_SHARING_TOGGLE_BUTTON:
+                view = new ZegoScreenSharingToggleButton(getContext());
+                ((ZegoScreenSharingToggleButton) view).topBarStyle();
+                if (screenSharingVideoConfig != null) {
+                    ((ZegoScreenSharingToggleButton) view).setPresetResolution(screenSharingVideoConfig.resolution);
+                }
+
+                break;
         }
         if (view != null) {
             view.setTag(menuBar);
@@ -229,6 +240,18 @@ public class TopMenuBar extends FrameLayout {
             if (menuBarConfig.hideAutomatically) {
                 getHandler().removeCallbacks(runnable);
                 getHandler().postDelayed(runnable, HIDE_DELAY_TIME);
+            }
+        }
+    }
+
+    public void setScreenShareVideoConfig(ZegoPrebuiltVideoConfig screenSharingVideoConfig) {
+        this.screenSharingVideoConfig = screenSharingVideoConfig;
+        if (screenSharingVideoConfig == null) {
+            return;
+        }
+        for (View view : showList) {
+            if (view instanceof ZegoScreenSharingToggleButton) {
+                ((ZegoScreenSharingToggleButton) view).setPresetResolution(screenSharingVideoConfig.resolution);
             }
         }
     }
