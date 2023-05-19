@@ -2,11 +2,16 @@ package com.zegocloud.uikit.prebuilt.videoconference;
 
 import android.Manifest.permission;
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -36,6 +41,7 @@ import com.zegocloud.uikit.prebuilt.videoconference.internal.ZegoScreenShareFore
 import com.zegocloud.uikit.service.defines.ZegoScenario;
 import com.zegocloud.uikit.service.defines.ZegoUIKitCallback;
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
+import im.zego.zegoexpress.constants.ZegoOrientation;
 import im.zego.zegoexpress.constants.ZegoVideoConfigPreset;
 import im.zego.zegoexpress.entity.ZegoVideoConfig;
 import java.util.ArrayList;
@@ -50,6 +56,8 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
     private List<View> topMenuBarBtns = new ArrayList<>();
     private OnBackPressedCallback onBackPressedCallback;
     private LeaveVideoConferenceListener leaveVideoConferenceListener;
+    private BroadcastReceiver configurationChangeReceiver;
+    private IntentFilter configurationChangeFilter;
 
     public static ZegoUIKitPrebuiltVideoConferenceFragment newInstance(long appID, @NonNull String appSign,
         @NonNull String userID, @NonNull String userName, @NonNull String conferenceID,
@@ -104,6 +112,32 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
                 config.leaveConfirmDialogInfo.confirmButtonName = getString(R.string.videoconference_leave_confirm);
             }
         }
+
+        configurationChangeFilter = new IntentFilter();
+        configurationChangeFilter.addAction("android.intent.action.CONFIGURATION_CHANGED");
+
+        configurationChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                ZegoOrientation orientation = ZegoOrientation.ORIENTATION_0;
+
+                if (Surface.ROTATION_0 == requireActivity().getWindowManager().getDefaultDisplay()
+                    .getRotation()) {
+                    orientation = ZegoOrientation.ORIENTATION_0;
+                } else if (Surface.ROTATION_180 == requireActivity().getWindowManager().getDefaultDisplay()
+                    .getRotation()) {
+                    orientation = ZegoOrientation.ORIENTATION_180;
+                } else if (Surface.ROTATION_270 == requireActivity().getWindowManager().getDefaultDisplay()
+                    .getRotation()) {
+                    orientation = ZegoOrientation.ORIENTATION_270;
+                } else if (Surface.ROTATION_90 == requireActivity().getWindowManager().getDefaultDisplay()
+                    .getRotation()) {
+                    orientation = ZegoOrientation.ORIENTATION_90;
+                }
+                ZegoUIKit.setAppOrientation(orientation);
+            }
+        };
+
         onBackPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -161,6 +195,8 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
     }
 
     private void onRoomJoinSucceed() {
+        requireActivity().registerReceiver(configurationChangeReceiver, configurationChangeFilter);
+
         String userID = getArguments().getString("userID");
         ZegoUIKitPrebuiltVideoConferenceConfig config = ConferenceConfigGlobal.getInstance().getConfig();
 
@@ -231,8 +267,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         });
 
         binding.avcontainer.setScreenShareForegroundViewProvider((parent, uiKitUser) -> {
-            ZegoScreenShareForegroundView foregroundView = new ZegoScreenShareForegroundView(parent,
-                uiKitUser.userID);
+            ZegoScreenShareForegroundView foregroundView = new ZegoScreenShareForegroundView(parent, uiKitUser.userID);
             foregroundView.setParentContainer(binding.avcontainer);
 
             if (config.layout.config instanceof ZegoLayoutGalleryConfig) {
@@ -364,6 +399,10 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
     }
 
     private void leaveRoom() {
+        if (configurationChangeReceiver != null) {
+            requireActivity().unregisterReceiver(configurationChangeReceiver);
+            configurationChangeReceiver = null;
+        }
         ZegoUIKit.leaveRoom();
     }
 
