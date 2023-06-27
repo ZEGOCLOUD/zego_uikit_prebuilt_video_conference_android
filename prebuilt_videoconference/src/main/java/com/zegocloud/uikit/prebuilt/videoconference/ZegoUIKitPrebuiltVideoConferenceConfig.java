@@ -1,5 +1,6 @@
 package com.zegocloud.uikit.prebuilt.videoconference;
 
+import com.zegocloud.uikit.components.audiovideo.ZegoAvatarViewProvider;
 import com.zegocloud.uikit.components.audiovideocontainer.ZegoLayout;
 import com.zegocloud.uikit.components.common.ZegoPresetResolution;
 import com.zegocloud.uikit.components.notice.ZegoInRoomNotificationViewConfig;
@@ -27,5 +28,5 @@ public class ZegoUIKitPrebuiltVideoConferenceConfig implements Serializable {
     public ZegoPrebuiltVideoConfig screenSharingVideoConfig = new ZegoPrebuiltVideoConfig(
         ZegoPresetResolution.PRESET_540P);
     public ZegoPrebuiltVideoConfig videoConfig = new ZegoPrebuiltVideoConfig(ZegoPresetResolution.PRESET_360P);
-
+    public ZegoAvatarViewProvider avatarViewProvider;
 }

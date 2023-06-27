@@ -252,6 +252,10 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
             binding.avcontainer.setAudioVideoForegroundViewProvider(foregroundProvider);
         }
 
+        if (config.avatarViewProvider != null) {
+            binding.avcontainer.setAvatarViewProvider(config.avatarViewProvider);
+        }
+
         binding.avcontainer.setLayout(config.layout);
         binding.avcontainer.setAudioVideoComparator(new ZegoAudioVideoComparator() {
             @Override
