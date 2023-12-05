@@ -121,8 +121,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                 ZegoOrientation orientation = ZegoOrientation.ORIENTATION_0;
 
-                if (Surface.ROTATION_0 == requireActivity().getWindowManager().getDefaultDisplay()
-                    .getRotation()) {
+                if (Surface.ROTATION_0 == requireActivity().getWindowManager().getDefaultDisplay().getRotation()) {
                     orientation = ZegoOrientation.ORIENTATION_0;
                 } else if (Surface.ROTATION_180 == requireActivity().getWindowManager().getDefaultDisplay()
                     .getRotation()) {
@@ -209,15 +208,19 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         applyAudioVideoViewConfig(config);
 
         requestPermissionIfNeeded((allGranted, grantedList, deniedList) -> {
-            if (grantedList.contains(permission.CAMERA)) {
-                if (config.turnOnCameraWhenJoining) {
+            if (config.turnOnCameraWhenJoining) {
+                if (grantedList.contains(permission.CAMERA)) {
                     ZegoUIKit.turnCameraOn(userID, true);
                 }
+            } else {
+                ZegoUIKit.turnCameraOn(userID, false);
             }
-            if (grantedList.contains(permission.RECORD_AUDIO)) {
-                if (config.turnOnMicrophoneWhenJoining) {
+            if (config.turnOnMicrophoneWhenJoining) {
+                if (grantedList.contains(permission.RECORD_AUDIO)) {
                     ZegoUIKit.turnMicrophoneOn(userID, true);
                 }
+            } else {
+                ZegoUIKit.turnMicrophoneOn(userID, false);
             }
         });
     }
