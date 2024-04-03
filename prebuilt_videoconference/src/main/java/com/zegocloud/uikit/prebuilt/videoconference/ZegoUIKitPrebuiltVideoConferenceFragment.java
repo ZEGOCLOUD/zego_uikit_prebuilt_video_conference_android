@@ -107,7 +107,7 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
 
         if (appID != 0) {
             ZegoUIKit.init(application, appID, appSign, ZegoScenario.GENERAL);
-            if (TextUtils.isEmpty(token)) {
+            if (!TextUtils.isEmpty(token)) {
                 ZegoUIKit.renewToken(token);
             }
             ZegoUIKit.login(userID, userName);
