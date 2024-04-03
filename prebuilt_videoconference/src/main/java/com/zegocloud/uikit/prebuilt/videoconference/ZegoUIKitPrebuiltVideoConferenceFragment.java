@@ -74,10 +74,19 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         return fragment;
     }
 
-    public static ZegoUIKitPrebuiltVideoConferenceFragment newInstance(long appID, @NonNull String appSign,
-        @NonNull String userID, @NonNull String userName, @NonNull String conferenceID) {
-        return newInstance(appID, appSign, conferenceID, userID, userName,
-            new ZegoUIKitPrebuiltVideoConferenceConfig());
+    public static ZegoUIKitPrebuiltVideoConferenceFragment newInstanceWithToken(long appID, String token,
+        @NonNull String userID, @NonNull String userName, @NonNull String conferenceID,
+        ZegoUIKitPrebuiltVideoConferenceConfig config) {
+        ZegoUIKitPrebuiltVideoConferenceFragment fragment = new ZegoUIKitPrebuiltVideoConferenceFragment();
+        Bundle bundle = new Bundle();
+        bundle.putLong("appID", appID);
+        bundle.putString("appToken", token);
+        bundle.putString("conferenceID", conferenceID);
+        bundle.putString("userID", userID);
+        bundle.putString("userName", userName);
+        ConferenceConfigGlobal.getInstance().setConfig(config);
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
     public ZegoUIKitPrebuiltVideoConferenceFragment() {
@@ -94,8 +103,13 @@ public class ZegoUIKitPrebuiltVideoConferenceFragment extends Fragment {
         String appSign = arguments.getString("appSign");
         String userID = arguments.getString("userID");
         String userName = arguments.getString("userName");
+        String token = arguments.getString("appToken");
+
         if (appID != 0) {
             ZegoUIKit.init(application, appID, appSign, ZegoScenario.GENERAL);
+            if (TextUtils.isEmpty(token)) {
+                ZegoUIKit.renewToken(token);
+            }
             ZegoUIKit.login(userID, userName);
         }
         if (config.leaveConfirmDialogInfo != null) {
